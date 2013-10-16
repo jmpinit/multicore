@@ -1,0 +1,116 @@
+;ZE PROGRAM
+.def	screen, 256
+
+@	0
+GOTO	^start, start
+GOTO	^core0, core0
+GOTO	^core1, core1
+GOTO	^core2, core2
+
+;====definitions====
+@	12
+.db	5
+@	13
+.db	3
+@	15
+.db	6
+@	16
+.db	2
+@	18
+.db	5
+@	19
+.db	1
+@	23
+.db	9
+
+;====CPU code====
+@ 32
+> time
+.db	0
+> start
+	NOP
+	NOP
+	NOP
+	NOP
+	INC	time
+	GOTO	^start, start
+
+
+;====core 0====
+> core0
+> 5a
+	SGRI	time, 0
+	GOTO	^5a, 5a
+	LDI	12, 5
+> *c
+	SGRI	time, 1
+	GOTO	^*c, *c
+	MULT	12, 13
+	MOV	14, 12
+> 9l
+	SGRI	time, 5
+	GOTO	^9l, 9l
+	LDI	23, 9
+> *j
+	SGRI	time, 10
+	GOTO	^*j, *j
+	MULT	17, 20
+	MOV	21, 17
+> +k
+	SGRI	time, 14
+	GOTO	^+k, +k
+	ADD	14, 21
+	MOV	22, 14
+> +m
+	SGRI	time, 16
+	GOTO	^+m, +m
+	ADD	22, 23
+	MOV	24, 22
+
+	BREAK
+> core_end0
+GOTO ^core_end0, core_end0
+
+;====core 1====
+> core1
+> 3b
+	SGRI	time, 0
+	GOTO	^3b, 3b
+	LDI	13, 3
+> 2e
+	SGRI	time, 1
+	GOTO	^2e, 2e
+	LDI	16, 2
+> /f
+	SGRI	time, 2
+	GOTO	^/f, /f
+	DIV	15, 16
+	MOV	17, 15
+
+	BREAK
+> core_end1
+GOTO ^core_end1, core_end1
+
+;====core 2====
+> core2
+> 6d
+	SGRI	time, 0
+	GOTO	^6d, 6d
+	LDI	15, 6
+> 5g
+	SGRI	time, 1
+	GOTO	^5g, 5g
+	LDI	18, 5
+> 1h
+	SGRI	time, 2
+	GOTO	^1h, 1h
+	LDI	19, 1
+> -i
+	SGRI	time, 3
+	GOTO	^-i, -i
+	SUB	18, 19
+	MOV	20, 18
+
+	BREAK
+> core_end2
+GOTO ^core_end2, core_end2

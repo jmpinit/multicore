@@ -1,0 +1,117 @@
+// locations
+.def OS_loc, 1024
+
+.def disk_en,	768
+.def disk_offH,	769
+.def disk_offL,	770
+.def disk_data,	771
+.def disk_file,	772
+
+@ 0
+> start
+	LDI		r1, filename	;8 bit address of filename string
+
+	LDI		r2, ^disk_file	;16 bit address of filename on disk interface
+	LDI		r3, disk_file
+
+	LDI		r4, 6			;counter for string copying
+
+> write_filename
+	LDI		r5, 0			;get character
+	GET		data, r5, r1
+	STO		r2, r3, data	;store character to interface
+	INC		r3				;increment pointer to interface
+	INC		r1				;increment string pointer
+	DEC		r4				;decrement counter
+	
+	SEQI	r4, 0
+	GOTO 	0, write_filename
+
+> enable
+	LDI		r2, ^disk_en	;16 bit address of enable on disk interface
+	LDI		r3, disk_en
+	LDI		r1, 255
+	STO		r2, r3, r1		;enable the disk
+
+> load_os_init
+	LDI		r1, ^OS_loc		;r1:r2 = where to load OS
+	LDI		r2, OS_loc
+	LDI		r3, ^disk_data	;r3:r4 point to data source
+	LDI		r4, disk_data
+	LDI		r5, ^disk_offH	;r5:r6 point to offsetH
+	LDI		r6, disk_offH
+	LDI		r7, ^disk_offL	;r7:r8 point to offsetL
+	LDI		r8,	disk_offL
+	LDI		countH,	0		;how many bytes to load
+	LDI		countL, 125
+
+> load_os
+	;load byte
+	GET		data, r3, r4
+	STO		r1, r2, data
+	
+	;increment pointer
+	INC		r2
+	
+	SNEI	r2, 255
+	INC		r1
+	SNEI	r2, 255
+	LDI		r2, 0
+	
+	;increment offset
+	
+	INC		offsetL
+	
+	SNEI	offsetL, 255
+	INC		offsetH
+	SNEI	offsetL, 255
+	LDI		offsetL, 0
+	
+	STO		r5, r6, offsetH
+	STO		r7, r8, offsetL
+	
+	;count down
+	DEC		countL
+
+	SEQI	countL, 0
+	GOTO 	0, load_os
+	
+> exit_to_os
+	GOTO	^OS_loc, OS_loc
+
+// variables
+> r1
+.db 0
+> r2
+.db 0
+> r3
+.db 0
+> r4
+.db 0
+> r5
+.db 0
+> r6
+.db 0
+> r7
+.db 0
+> r8
+.db 0
+> countH
+.db 0
+> countL
+.db 0
+> data
+.db 0
+> offsetH
+.db 0
+> offsetL
+.db 0
+
+// constants
+> filename
+.db 104
+.db 105
+.db 46
+.db 98
+.db 105
+.db 110

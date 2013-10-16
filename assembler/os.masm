@@ -1,0 +1,102 @@
+.def screen,		256
+
+; task data - up to 128 tasks, each up to 256 bytes of code
+.def lengths,		4096	;16 bit values
+.def sched_times,	4352	;16 bit values
+.def schedule,		4608	;3 processors with 128 task slots each
+.def prereqs,		4992	;variable-length entries
+
+.def positionH,	0
+.def positionL,	1
+.def param0,	2
+.def param1,	3
+.def param2,	4
+.def param3,	5
+.def param4,	6
+.def param5,	7
+.def r0			8
+.def r1			9
+.def r2			10
+.def r3			11
+
+@ 0
+# 1024
+
+> start
+	LDI		positionH, ^screen
+	LDI		positionL, screen
+	
+	LDI		r0, 79
+	STO		positionH, positionL, r0
+	INC		positionL
+	LDI		r0, 83
+	STO		positionH, positionL, r0
+	INC		positionL
+	LDI		r0, 32
+	STO		positionH, positionL, r0
+	INC		positionL
+	LDI		r0, 76
+	STO		positionH, positionL, r0
+	INC		positionL
+	LDI		r0, 79
+	STO		positionH, positionL, r0
+	INC		positionL
+	LDI		r0, 65
+	STO		positionH, positionL, r0
+	INC		positionL
+	LDI		r0, 68
+	STO		positionH, positionL, r0
+	INC		positionL
+	LDI		r0, 69
+	STO		positionH, positionL, r0
+	INC		positionL
+	LDI		r0, 68
+	STO		positionH, positionL, r0
+	INC		positionL
+	BREAK
+
+> loop
+	GOTO	^loop, loop
+	
+;===FINISHED_AT
+;DESC:		Returns whether task is complete in schedule at given time
+;INPUT:		param0=task
+;			param1=time
+;OUTPUT:	param0=completed (nonzero means yes)
+> finished_at
+
+;===CHECK_FILLED
+;DESC:		Returns whether there is a task in the schedule at given time
+;INPUT:		param0=time
+;OUTPUT:	param0=filled (nonzero means yes)
+> check_filled
+
+
+;===TASK_AT
+;DESC:		Returns task in time slot
+
+;===GET_PREREQS
+;DESC:		Returns pointer to prerequisites for task.
+;INPUT: 	param0=task
+;OUTPUT:	param2=task positionL
+;			param3=task positionH
+> get_preqs
+	LDI		param1, 0				;counter
+	LDI		param3, ^preq_table		;positionH
+	LDI		param2, preq_table		;positionL
+	
+	SNE		param0, 0				;if task = 0
+	RET								;then we are done
+	
+> get_preqs_nav						;skip tasks until we find the one
+	GET		param4, param3, param2	;get the # of preqs
+	
+	ADD		param2, param4			;skip task
+	SCC
+	INC		param3
+	
+	INC		param1					;count up
+	
+	SEQ		param0, param1			;check if we are at the task
+	GOTO	^get_preqs_nav, get_preqs_nav
+	RET

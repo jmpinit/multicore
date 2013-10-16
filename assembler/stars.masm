@@ -1,0 +1,18 @@
+.def screen, 256
+
+.def positionH, 0
+.def positionL, 1
+.def letter, 2
+
+@ 0
+;# 1040
+
+> start
+LDI		letter, 42
+LDI		positionH, ^screen
+LDI		positionL, screen
+
+> loop
+STO		positionH, positionL, letter
+INC		positionL
+GOTO	^loop, loop
